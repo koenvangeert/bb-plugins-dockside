@@ -123,6 +123,21 @@ export function settledIndicator(row: SettledThreadRow): {
   return { indicator: "none", indicatorLabel: null };
 }
 
+const THREAD_STATUSES: readonly string[] = [
+  "active",
+  "error",
+  "idle",
+  "pending",
+  "starting",
+  "stopping",
+] satisfies readonly PluginSidebarThread["status"][];
+
+function threadStatusFor(value: string): PluginSidebarThread["status"] {
+  return THREAD_STATUSES.includes(value)
+    ? (value as PluginSidebarThread["status"])
+    : "idle";
+}
+
 /** Only the two kinds this sidebar draws a parent chip for survive. */
 function originKindFor(value: string | null): "fork" | "side-chat" | null {
   return value === "fork" || value === "side-chat" ? value : null;
@@ -137,12 +152,17 @@ function originKindFor(value: string | null): "fork" | "side-chat" | null {
  */
 export function toSidebarThread(row: SettledThreadRow): PluginSidebarThread {
   const { indicator, indicatorLabel } = settledIndicator(row);
+  const status = threadStatusFor(row.status);
   return {
     id: row.id,
     projectId: row.projectId,
     title: row.title,
     titleFallback: row.titleFallback,
+    displayTitle:
+      row.title?.trim() || row.titleFallback?.trim() || "Untitled thread",
     parentThreadId: row.parentThreadId,
+    lifecycleOwnerThreadId: null,
+    sourceThreadId: null,
     sectionId: row.sectionId,
     // bb 0.40 adds the legacy `side-chat` value to this sidebar field. The
     // plugin still ships declarations compatible with older bb releases,
@@ -151,15 +171,23 @@ export function toSidebarThread(row: SettledThreadRow): PluginSidebarThread {
     originKind: originKindFor(row.originKind) as PluginSidebarThread["originKind"],
     originPluginId: row.originPluginId,
     providerId: row.providerId,
+    status,
+    runtimeStatus: status,
+    queuedWork: "none",
     hasPendingInteraction: row.hasPendingInteraction,
     activity: row.activity,
     indicator,
     indicatorLabel,
     isUnread: isUnread(row),
     isPinned: row.isPinned,
+    pinnedAt: null,
+    pinSortKey: null,
     // The one field the host would never report as true, and the reason this
     // whole path exists.
     isArchived: true,
+    archivedAt: row.settledAt,
+    href: `/projects/${row.projectId}/threads/${row.id}`,
+    isHidden: false,
     environment: null,
     host: null,
     createdAt: row.createdAt,
