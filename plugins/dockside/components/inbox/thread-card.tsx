@@ -20,6 +20,7 @@ import {
 import { StatusGlyph } from "@/components/inbox/status-glyph";
 import { threadStatus } from "@/components/inbox/status-slot";
 import { PullRequestMetadata } from "@/components/inbox/row-metadata";
+import { PullRequestInsight } from "@/components/inbox/pr-insight";
 import {
   FamilyStatusBadge,
   FamilyStatusIcon,
@@ -32,6 +33,8 @@ import type { RootSelectionIntent } from "@/lib/thread-management";
 import type { DocksidePreferences } from "@/lib/preferences";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
+import { rowPullRequestInsight } from "@/lib/pr-insight-presentation";
+import { usePrSummary } from "@/hooks/use-pr-summary";
 
 export function ThreadCard({
   thread,
@@ -85,7 +88,17 @@ export function ThreadCard({
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
-  const { pullRequest } = useSidebarThreadPullRequest(thread.id);
+  const { pullRequest: corePullRequest } = useSidebarThreadPullRequest(thread.id);
+  const prSummary = usePrSummary({
+    threadId: thread.id,
+    threadUpdatedAt: thread.updatedAt,
+    now,
+    enabled: preferences.showPullRequestMetadata && corePullRequest !== null,
+  });
+  const { pullRequest, insight } = rowPullRequestInsight(
+    corePullRequest,
+    prSummary,
+  );
   const childListId = useId();
   const [expandedOverride, setExpandedOverride] = useState<boolean | null>(
     null,
@@ -120,6 +133,10 @@ export function ThreadCard({
   const childDisclosureLabel = `${expanded ? "Hide" : "Show"} ${childThreads.length} child${childThreads.length === 1 ? " thread" : " threads"}${childProviderNames ? `; providers: ${childProviderNames}` : ""}`;
   const rootIsActive = thread.id === activeThreadId;
   const familyState = familyStatus([thread, ...childThreads], now);
+  const openRoot = (split: boolean) => {
+    actions.open(thread.id, { split });
+    onNavigate();
+  };
 
   return (
     <RowContextMenu thread={thread}>
@@ -198,10 +215,7 @@ export function ThreadCard({
                   {...splitProps}
                   onClick={(event) => {
                     event.preventDefault();
-                    actions.open(thread.id, {
-                      split: event.metaKey || event.ctrlKey,
-                    });
-                    onNavigate();
+                    openRoot(event.metaKey || event.ctrlKey);
                   }}
                   className="absolute inset-0 cursor-pointer rounded-lg"
                 />
@@ -337,10 +351,19 @@ export function ThreadCard({
                 className="flex h-4 max-w-full items-center justify-end gap-1 whitespace-nowrap"
               >
                 {preferences.showPullRequestMetadata && pullRequest ? (
-                  <PullRequestMetadata
-                    pullRequest={pullRequest}
-                    interactive={!selectionMode}
-                  />
+                  <>
+                    {insight ? (
+                      <PullRequestInsight
+                        insight={insight}
+                        interactive={!selectionMode}
+                        onOpen={() => openRoot(false)}
+                      />
+                    ) : null}
+                    <PullRequestMetadata
+                      pullRequest={pullRequest}
+                      interactive={!selectionMode}
+                    />
+                  </>
                 ) : null}
                 {childThreads.length > 0 ? (
                   <button
