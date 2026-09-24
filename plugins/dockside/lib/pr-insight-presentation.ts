@@ -65,6 +65,10 @@ function insightCounts(summary: PrSummaryV1): PrInsightCount[] {
   return counts.filter((count) => count.value > 0);
 }
 
+function isTerminal(state: string): boolean {
+  return state === "merged" || state === "closed";
+}
+
 export function rowPullRequestInsight(
   pullRequest: PluginSidebarPullRequest | null,
   summary: PrSummaryV1 | null,
@@ -75,16 +79,18 @@ export function rowPullRequestInsight(
   if (
     pullRequest === null ||
     summary === null ||
-    summary.pr.number !== pullRequest.number
+    summary.pr.number !== pullRequest.number ||
+    isTerminal(pullRequest.state) ||
+    isTerminal(pullRequest.attention)
   ) {
     return { pullRequest, insight: null };
   }
   const withSummaryState = { ...pullRequest, state: summary.pr.state };
-  if (summary.pr.state === "merged" || summary.pr.state === "closed") {
+  if (isTerminal(summary.pr.state)) {
     return { pullRequest: withSummaryState, insight: null };
   }
   const counts = insightCounts(summary);
-  if (counts.length === 0) {
+  if (counts.length === 0 && summary.error === null) {
     return { pullRequest: withSummaryState, insight: null };
   }
   return {

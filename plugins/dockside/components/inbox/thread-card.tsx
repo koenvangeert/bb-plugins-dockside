@@ -356,7 +356,9 @@ export function ThreadCard({
                       <PullRequestInsight
                         insight={insight}
                         interactive={!selectionMode}
-                        onOpen={() => openRoot(false)}
+                        onOpen={(event) =>
+                          openRoot(event.metaKey || event.ctrlKey)
+                        }
                       />
                     ) : null}
                     <PullRequestMetadata

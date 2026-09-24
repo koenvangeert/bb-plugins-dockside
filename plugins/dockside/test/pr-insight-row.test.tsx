@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { fireEvent, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   JsonValue,
   PluginSidebarProject,
@@ -97,9 +97,10 @@ function summary(overrides: Metadata = {}): Metadata {
   };
 }
 
-async function renderRow(metadata: Metadata) {
+async function renderRow(metadata: Metadata | (() => Metadata)) {
   const app = await loadPluginApp(() => import("../app.tsx"));
-  const getPluginMetadata = async () => metadata;
+  const getPluginMetadata = async () =>
+    typeof metadata === "function" ? metadata() : metadata;
   return renderSlot(
     app.threadLists[0]!,
     {
@@ -132,6 +133,7 @@ let current: Slot | null = null;
 afterEach(() => {
   current?.lifecycle.unmount();
   current = null;
+  vi.useRealTimers();
 });
 
 describe("PR insight on the sidebar row", () => {
@@ -170,7 +172,7 @@ describe("PR insight on the sidebar row", () => {
     const button = await insightButton(current);
 
     expect(button.getAttribute("aria-label")).toBe(
-      "2 failed checks, 1 pending reviewer, stale; open thread",
+      "2 failed checks, 1 pending reviewer, PR data stale; open thread",
     );
     expect(button.querySelector("[data-dockside-pr-insight-stale]")).not.toBeNull();
     expect(within(button).getByText("rate limited")).toBeTruthy();
@@ -213,5 +215,18 @@ describe("PR insight on the sidebar row", () => {
     expect(current.inspection.sidebarActionCalls).toContainEqual(
       expect.objectContaining({ method: "open", threadId: THREAD_ID }),
     );
+  });
+
+  it("picks up a new summary on the next minute tick", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let metadata: Metadata = {};
+    current = await renderRow(() => metadata);
+    await current.findByRole("link", { name: /^BLOCKED pull request 25392/ });
+    expect(current.queryByRole("button", { name: /open thread$/ })).toBeNull();
+
+    metadata = { prSummary: summary() };
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    expect(await insightButton(current)).toBeTruthy();
   });
 });

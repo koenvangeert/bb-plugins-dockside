@@ -7,10 +7,7 @@ import {
   type PrSummaryV1,
 } from "@/lib/pr-summary";
 
-/**
- * A metadata write does not reach the sidebar live, so the summary is read
- * again when the thread changes and on every tick of the list's minute clock.
- */
+// Metadata writes do not reach the sidebar live, so `now` is a refetch trigger.
 export function usePrSummary({
   threadId,
   threadUpdatedAt,

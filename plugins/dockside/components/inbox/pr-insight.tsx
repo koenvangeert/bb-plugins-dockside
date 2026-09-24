@@ -1,3 +1,5 @@
+import type { MouseEvent } from "react";
+import { RowTooltip } from "@/components/inbox/row-metadata";
 import { Icon, type IconName } from "@/components/ui/icon";
 import type {
   PrInsightCount,
@@ -18,9 +20,9 @@ function TooltipList({ title, items }: { title: string; items: string[] }) {
   return (
     <span className="mt-1 block first:mt-0">
       <span className="block font-semibold">{title}</span>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <span
-          key={item}
+          key={`${index}-${item}`}
           className="block max-w-52 whitespace-normal break-words text-muted-foreground"
         >
           {item}
@@ -37,11 +39,11 @@ export function PullRequestInsight({
 }: {
   insight: PrInsightPresentation;
   interactive?: boolean;
-  onOpen: () => void;
+  onOpen: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const label = [
     ...insight.counts.map((count) => count.label),
-    ...(insight.staleReason === null ? [] : ["stale"]),
+    ...(insight.staleReason === null ? [] : ["PR data stale"]),
   ].join(", ");
   const content = (
     <>
@@ -63,10 +65,7 @@ export function PullRequestInsight({
           <Icon name="Clock" className="size-3" aria-hidden />
         </span>
       )}
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-left text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/insight:translate-y-0 group-hover/insight:opacity-100 group-focus-visible/insight:translate-y-0 group-focus-visible/insight:opacity-100"
-      >
+      <RowTooltip>
         <TooltipList title="Failed checks" items={insight.failedNames} />
         <TooltipList title="Pending reviewers" items={insight.pendingNames} />
         <TooltipList title="Blockers" items={insight.blockerTexts} />
@@ -76,13 +75,13 @@ export function PullRequestInsight({
             items={[insight.staleReason]}
           />
         )}
-      </span>
+      </RowTooltip>
     </>
   );
 
   if (!interactive) {
     return (
-      <span className="group/insight pointer-events-none relative flex h-4 items-center gap-1 text-2xs text-muted-foreground">
+      <span className="group/pr pointer-events-none relative flex h-4 items-center gap-1 text-2xs text-muted-foreground">
         <span className="sr-only">{label}</span>
         <span aria-hidden className="contents">
           {content}
@@ -97,9 +96,9 @@ export function PullRequestInsight({
       aria-label={`${label}; open thread`}
       onClick={(event) => {
         event.stopPropagation();
-        onOpen();
+        onOpen(event);
       }}
-      className="group/insight pointer-events-auto relative flex h-4 items-center gap-1 text-2xs text-muted-foreground hover:text-foreground"
+      className="group/pr pointer-events-auto relative flex h-4 items-center gap-1 text-2xs text-muted-foreground hover:text-foreground"
     >
       {content}
     </button>

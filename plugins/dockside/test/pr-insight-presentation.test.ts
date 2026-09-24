@@ -121,6 +121,29 @@ describe("rowPullRequestInsight", () => {
     assert.equal(result.insight, null);
   });
 
+  it("shows no counts when bb already reports the pull request merged", () => {
+    const merged = { ...pullRequest, state: "merged" as const };
+    assert.deepEqual(rowPullRequestInsight(merged, summary()), {
+      pullRequest: merged,
+      insight: null,
+    });
+  });
+
+  it("shows only the stale mark when every count is zero and the refresh failed", () => {
+    const { insight } = rowPullRequestInsight(
+      pullRequest,
+      summary({
+        checks: { ...summary().checks, failed: 0, failedNames: [] },
+        reviewers: { ...summary().reviewers, pending: 0, pendingNames: [] },
+        blockers: ["conflicts"],
+        error: "rate limited",
+      }),
+    );
+    assert.deepEqual(insight?.counts, []);
+    assert.equal(insight?.staleReason, "rate limited");
+    assert.deepEqual(insight?.blockerTexts, ["Merge conflicts"]);
+  });
+
   it("ignores a summary for another pull request number", () => {
     assert.deepEqual(
       rowPullRequestInsight(

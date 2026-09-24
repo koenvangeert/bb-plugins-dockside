@@ -55,7 +55,7 @@ export interface SettledThreadRow {
   originKind: string | null;
   originPluginId: string | null;
   providerId: string;
-  /** bb's thread status: "active", "starting", "stopping", "idle", "error". */
+  /** bb's thread status: "active", "starting", "stopping", "idle", "error", "pending". */
   status: string;
   hasPendingInteraction: boolean;
   isPinned: boolean;
