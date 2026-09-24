@@ -91,8 +91,9 @@ selected immutable tag through its normal managed install pipeline.
 
 ## Requirements
 
-- bb ≥ 0.36
+- bb ≥ 0.43
 - Nothing else. No accounts, keys, or external services.
+- Optional: the `github-insight` plugin, for check and reviewer counts on the row.
 
 ## Usage
 
@@ -134,6 +135,19 @@ runtime, workflow, agent, command, plan, or goal activity. PR ticks and other PR
 icons use their semantic color as a tinted background, so a ready tick is
 visibly green. Hovering a quiet root swaps its elapsed time for the two park
 buttons without adding a row.
+
+### PR insight from github-insight
+
+When the `github-insight` plugin writes a PR summary for a thread, the row shows
+the failed check, running check, and pending reviewer counts next to the PR
+number. Only counts above zero show. Hover for the failed check names, the
+pending reviewers, and the blockers. A clock mark means the last refresh
+failed. Merged and closed PRs show no counts. Click the counts to open the
+thread.
+
+Dockside ignores a summary that is older than 1 hour or that it cannot read,
+and then shows the row with bb's own PR data. The row reads the summary again
+every minute and when the thread changes.
 
 ### A working thread can never be parked
 

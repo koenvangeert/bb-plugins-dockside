@@ -11,6 +11,12 @@ function thread(overrides: Partial<PluginSidebarThread>): PluginSidebarThread {
     projectId: "project",
     title: "Thread",
     titleFallback: null,
+    displayTitle: "Thread",
+    lifecycleOwnerThreadId: null,
+    sourceThreadId: null,
+    status: "idle",
+    runtimeStatus: "idle",
+    queuedWork: "none",
     parentThreadId: null,
     sectionId: null,
     originKind: null,
@@ -23,6 +29,11 @@ function thread(overrides: Partial<PluginSidebarThread>): PluginSidebarThread {
     isUnread: false,
     isPinned: false,
     isArchived: false,
+    pinnedAt: null,
+    pinSortKey: null,
+    archivedAt: null,
+    href: "/thread",
+    isHidden: false,
     environment: null,
     host: null,
     createdAt: 1,
@@ -34,7 +45,7 @@ function thread(overrides: Partial<PluginSidebarThread>): PluginSidebarThread {
 }
 
 const projects: PluginSidebarProject[] = [
-  { id: "project", name: "Project", isPersonal: false },
+  { id: "project", name: "Project", isPersonal: false, href: "", settingsHref: "" },
 ];
 
 describe("groupFamiliesByStatus", () => {

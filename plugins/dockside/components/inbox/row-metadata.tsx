@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   UrlLink,
   type PluginSidebarPullRequest,
@@ -5,6 +6,18 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { semanticStateToneClass } from "@/lib/attention-state";
 import { pullRequestPresentation } from "@/lib/pull-request-presentation";
+
+/** Shows on hover or focus of the closest `group/pr` ancestor. */
+export function RowTooltip({ children }: { children: ReactNode }) {
+  return (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-left text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/pr:translate-y-0 group-hover/pr:opacity-100 group-focus-visible/pr:translate-y-0 group-focus-visible/pr:opacity-100"
+    >
+      {children}
+    </span>
+  );
+}
 
 export function PullRequestMetadata({
   pullRequest,
@@ -31,17 +44,14 @@ export function PullRequestMetadata({
       >
         <Icon name={presentation.icon} className="size-3" aria-hidden />
       </span>
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-left text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/pr:translate-y-0 group-hover/pr:opacity-100 group-focus-visible/pr:translate-y-0 group-focus-visible/pr:opacity-100"
-      >
+      <RowTooltip>
         <span className="block font-semibold">
           {presentation.label} · #{pullRequest.number}
         </span>
         <span className="mt-0.5 block max-w-52 whitespace-normal break-words text-muted-foreground">
           {pullRequest.title}
         </span>
-      </span>
+      </RowTooltip>
     </>
   );
 

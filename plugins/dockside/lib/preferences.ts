@@ -157,7 +157,7 @@ const COLOR_SETTING_KEYS: Readonly<Record<SemanticColorRole, string>> = {
 const HEX_COLOR = /^#[0-9A-F]{6}$/i;
 
 export function resolveDocksidePreferences(
-  values: Readonly<Record<string, string | boolean>> | undefined,
+  values: Readonly<Record<string, string | number | boolean>> | undefined,
 ): DocksidePreferences {
   const palettePreset = readOption(
     values?.palettePreset,
@@ -192,7 +192,7 @@ export function resolveDocksidePreferences(
 
 function resolvePalette(
   preset: PalettePreset,
-  values: Readonly<Record<string, string | boolean>> | undefined,
+  values: Readonly<Record<string, string | number | boolean>> | undefined,
 ): SemanticPalette {
   switch (preset) {
     case "High contrast":
@@ -211,18 +211,18 @@ function resolvePalette(
   }
 }
 
-function readHex(value: string | boolean | undefined, fallback: string): string {
+function readHex(value: string | number | boolean | undefined, fallback: string): string {
   if (typeof value !== "string") return fallback;
   const normalized = value.trim().toUpperCase();
   return HEX_COLOR.test(normalized) ? normalized : fallback;
 }
 
-function readBoolean(value: string | boolean | undefined, fallback: boolean) {
+function readBoolean(value: string | number | boolean | undefined, fallback: boolean) {
   return typeof value === "boolean" ? value : fallback;
 }
 
 function readOption<const Options extends readonly string[]>(
-  value: string | boolean | undefined,
+  value: string | number | boolean | undefined,
   options: Options,
   fallback: Options[number],
 ): Options[number] {

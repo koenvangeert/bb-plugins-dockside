@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "include": [
+    "types",
+    "components/styles.d.ts",
+    "test/**/*.tsx",
+    "vitest.config.ts"
+  ],
+  "exclude": []
+}
