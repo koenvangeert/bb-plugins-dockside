@@ -35,5 +35,8 @@
     "hooks",
     "lib",
     "test"
+  ],
+  "exclude": [
+    "test/**/*.tsx"
   ]
 }

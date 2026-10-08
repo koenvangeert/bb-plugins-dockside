@@ -145,6 +145,8 @@ export function groupThreadsByProject(
           id: projectId,
           name: "Other project",
           isPersonal: false,
+          href: `/projects/${projectId}`,
+          settingsHref: `/projects/${projectId}/settings`,
         } satisfies PluginSidebarProject),
       families,
     });

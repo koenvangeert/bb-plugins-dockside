@@ -27,6 +27,12 @@ function thread(
     projectId: "proj_1",
     title: "A thread",
     titleFallback: null,
+    displayTitle: "Thread",
+    lifecycleOwnerThreadId: null,
+    sourceThreadId: null,
+    status: "idle",
+    runtimeStatus: "idle",
+    queuedWork: "none",
     parentThreadId: null,
     sectionId: null,
     originKind: null,
@@ -45,6 +51,11 @@ function thread(
     isUnread: false,
     isPinned: false,
     isArchived: false,
+    pinnedAt: null,
+    pinSortKey: null,
+    archivedAt: null,
+    href: "/thread",
+    isHidden: false,
     environment: null,
     host: null,
     createdAt: 100,
@@ -60,7 +71,7 @@ function project(
   name: string,
   isPersonal = false,
 ): PluginSidebarProject {
-  return { id, name, isPersonal };
+  return { id, name, isPersonal, href: `/projects/${id}`, settingsHref: `/projects/${id}/settings` };
 }
 
 describe("sortByCreatedAtDescending", () => {

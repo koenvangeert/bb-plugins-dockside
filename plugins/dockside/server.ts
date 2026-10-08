@@ -73,7 +73,7 @@ interface AuthoritativeThreadRow {
   title: string | null;
   titleFallback: string | null;
   parentThreadId: string | null;
-  status: "active" | "error" | "idle" | "starting" | "stopping";
+  status: "active" | "error" | "idle" | "pending" | "starting" | "stopping";
   hasPendingInteraction: boolean;
   pinnedAt: number | null;
   lastReadAt: number | null;
@@ -92,6 +92,7 @@ interface AuthoritativeThreadRow {
       | "error"
       | "host-reconnecting"
       | "idle"
+      | "pending"
       | "provisioning"
       | "starting"
       | "stopping"
